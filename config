@@ -1,0 +1,25 @@
+# Installation directories
+
+# Default prefix
+PREFIX = /usr
+
+# System's libraries directory (where binary libraries are installed)
+LUA_LIBDIR= $(PREFIX)/lib/lua/5.1
+
+# System's lua directory (where Lua libraries are installed)
+LUA_DIR= $(PREFIX)/share/lua/5.1
+
+# Lua includes directory
+LUA_INC= $(PREFIX)/include/lua5.1
+
+# OS dependent
+LIB_OPTION= -lrt -shared #for Linux
+
+V= 0.1
+
+LIBNAME= luamq.so
+
+WARN= -Wall -Wmissing-prototypes -Wmissing-declarations -ansi -pedantic -fPIC
+INCS= -I$(LUA_INC)
+CFLAGS= -O2 $(WARN) $(INCS)
+CC= gcc
