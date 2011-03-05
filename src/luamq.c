@@ -11,6 +11,12 @@
 
 LUALIB_API int luaopen_luamq(lua_State *L);
 
+static mode_t get_mode(const char* modestr)
+{
+/* TODO: implement this!!! */
+  return S_IRWXU | S_IRWXG;
+}
+
 static int get_oflags(const char* flagstr)
 {
   if(!strcmp(flagstr, "ro"))
@@ -26,8 +32,11 @@ static int l_luamq_create(lua_State *L)
 {
   mqd_t id, *ptr;
   int flags;
-  flags = get_oflags(luaL_optlstring(L, 2, "", NULL));
-  id = mq_open(luaL_checkstring(L, 1), flags | O_CREAT, S_IRWXU | S_IRWXG, NULL);
+  mode_t mode;
+
+  flags = get_oflags(luaL_optstring(L, 2, ""));
+  mode = get_mode(luaL_optstring(L, 3, ""));
+  id = mq_open(luaL_checkstring(L, 1), flags | O_CREAT, mode, NULL);
   if(id == (mqd_t)-1) {
     lua_pushnil(L);
     lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
