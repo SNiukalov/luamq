@@ -19,7 +19,7 @@ V= 0.1
 
 LIBNAME= luamq.so
 
-WARN= -Wall -Wmissing-prototypes -Wmissing-declarations -ansi -pedantic -fPIC
+WARN= -Wall -Wmissing-prototypes -Wmissing-declarations -pedantic -fPIC
 INCS= -I$(LUA_INC)
 CFLAGS= -O2 $(WARN) $(INCS)
 CC= gcc

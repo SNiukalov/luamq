@@ -3,6 +3,7 @@
 
 #include <sys/stat.h>
 #include <mqueue.h>
+#define _XOPEN_SOURCE 600  
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,6 +29,18 @@ static int get_oflags(const char* flagstr)
   return O_RDWR;
 }
 
+static void push_errno(lua_State *L)
+{
+  char msg[255];
+  int ret;
+
+  ret = strerror_r(errno, msg, sizeof(msg));
+  if(!ret)
+    lua_pushstring(L, msg);
+  else
+    lua_pushstring(L, "unknown error");
+}
+
 static int l_luamq_create(lua_State *L)
 {
   mqd_t id, *ptr;
@@ -39,7 +52,7 @@ static int l_luamq_create(lua_State *L)
   id = mq_open(luaL_checkstring(L, 1), flags | O_CREAT, mode, NULL);
   if(id == (mqd_t)-1) {
     lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    push_errno(L);
     return 2;
   }
   ptr = (mqd_t*)lua_newuserdata(L, sizeof(mqd_t));
@@ -57,7 +70,7 @@ static int l_luamq_open(lua_State *L)
   id = mq_open(luaL_checkstring(L, 1), flags);
   if(id == (mqd_t)-1) {
     lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    push_errno(L);
     return 2;
   }
   ptr = (mqd_t*)lua_newuserdata(L, sizeof(mqd_t));
@@ -79,7 +92,7 @@ static int l_luamq_send(lua_State *L)
   prio = luaL_optint(L, 3, 0);
   if(mq_send(*id, str, len, prio)) {
     lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    push_errno(L);
     return 2;
   }
 
@@ -98,7 +111,7 @@ static int l_luamq_receive(lua_State *L)
   id = luaL_checkudata(L, 1, MQD_TYPENAME);
   if(mq_getattr(*id, &attr)) {
     lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    push_errno(L);
     return 2;
   }
 
@@ -114,7 +127,7 @@ static int l_luamq_receive(lua_State *L)
   if(len < 0) {
     free(str);
     lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    push_errno(L);
     return 2;
   }
 
@@ -130,7 +143,7 @@ static int l_luamq_close(lua_State *L)
   id = luaL_checkudata(L, 1, MQD_TYPENAME);
   if(mq_close(*id)) {
     lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    push_errno(L);
     return 2;
   }
 
@@ -142,7 +155,7 @@ static int l_luamq_unlink(lua_State *L)
 {
   if(mq_unlink(luaL_checkstring(L, 1))) {
     lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    push_errno(L);
     return 2;
   }
 
