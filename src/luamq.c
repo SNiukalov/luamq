@@ -5,7 +5,7 @@
 #include <mqueue.h>
 #include <errno.h>
 #include <string.h>
-
+#include <stdlib.h>
 
 #define MQD_TYPENAME "mqd_t"
 
@@ -13,10 +13,10 @@ LUALIB_API int luaopen_luamq(lua_State *L);
 
 static int get_oflags(const char* flagstr)
 {
-  if(strcmp(flagstr, "ro"))
+  if(!strcmp(flagstr, "ro"))
     return O_RDONLY;
 
-  if(strcmp(flagstr, "wo"))
+  if(!strcmp(flagstr, "wo"))
     return O_WRONLY;
 
   return O_RDWR;
@@ -73,12 +73,46 @@ static int l_luamq_send(lua_State *L)
     lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
     return 2;
   }
-  return 0;
+
+  lua_pushboolean(L, 1);
+  return 1;
 }
 
 static int l_luamq_receive(lua_State *L)
 {
-  return 0;
+  mqd_t* id;
+  unsigned int prio;
+  struct mq_attr attr;
+  ssize_t len;
+  char* str;
+
+  id = luaL_checkudata(L, 1, MQD_TYPENAME);
+  if(mq_getattr(*id, &attr)) {
+    lua_pushnil(L);
+    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    return 2;
+  }
+
+  len = attr.mq_msgsize;
+  str = malloc(len);
+  if(!str) {
+    lua_pushnil(L);
+    lua_pushstring(L, "bad alloc");
+    return 2;
+  }
+
+  len = mq_receive(*id, str, len, &prio);
+  if(len < 0) {
+    free(str);
+    lua_pushnil(L);
+    lua_pushstring(L, strerror(errno)); /* TODO: thread safety */
+    return 2;
+  }
+
+  lua_pushlstring(L, str, len);
+  free(str);
+  lua_pushinteger(L, prio);
+  return 2;
 }
 
 static int l_luamq_close(lua_State *L)
