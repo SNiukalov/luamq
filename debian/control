@@ -1,0 +1,23 @@
+Source: luamq
+Section: interpreters
+Priority: optional
+Maintainer: Christian Pointner <equinox@spreadspace.org>
+Build-Depends: cdbs (>= 0.4.23-1.1), debhelper (>= 5)
+Standards-Version: 3.8.2
+Homepage: http://www.spreadspace.org/
+
+Package: liblua5.1-mq
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: luamq library for the Lua language version 5.1
+ This package contains the luamq library a interface to posix
+ message queues.
+
+Package: liblua5.1-mq-dev
+Architecture: any
+Depends: liblua5.1-mq (= ${binary:Version})
+Section: libdevel
+Description: luamq development files for the Lua language version 5.1
+ This package contains the development files of the luamq library,
+ useful to create a statically linked binary (like a C application or
+ a standalone Lua interpreter).
