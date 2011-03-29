@@ -2,8 +2,8 @@ CONFIG= ./config
 
 include $(CONFIG)
 
-OBJS= src/luamq.o
-SRCS= src/luamq.h src/luamq.c
+OBJS= src/lua-mq.o
+SRCS= src/lua-mq.h src/lua-mq.c
 AR= ar rcu
 RANLIB= ranlib
 

@@ -1,6 +1,6 @@
 #!/usr/bin/lua
 
-mq = require "luamq"
+mq = require "mq"
 
 q, err = mq.create("/nownext", "wo")
 if q == nil then

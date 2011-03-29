@@ -9,8 +9,7 @@
 #include <stdlib.h>
 
 #define MQD_TYPENAME "mqd_t"
-
-LUALIB_API int luaopen_luamq(lua_State *L);
+#include "lua-mq.h"
 
 static mode_t get_mode(const char* modestr)
 {
@@ -41,7 +40,7 @@ static void push_errno(lua_State *L)
     lua_pushstring(L, "unknown error");
 }
 
-static int l_luamq_create(lua_State *L)
+static int l_mq_create(lua_State *L)
 {
   mqd_t id, *ptr;
   int flags;
@@ -62,7 +61,7 @@ static int l_luamq_create(lua_State *L)
   return 1;
 }
 
-static int l_luamq_open(lua_State *L)
+static int l_mq_open(lua_State *L)
 {
   mqd_t id, *ptr;
   int flags;
@@ -80,7 +79,7 @@ static int l_luamq_open(lua_State *L)
   return 1;
 }
 
-static int l_luamq_send(lua_State *L)
+static int l_mq_send(lua_State *L)
 {
   mqd_t* id;
   unsigned int prio;
@@ -100,7 +99,7 @@ static int l_luamq_send(lua_State *L)
   return 1;
 }
 
-static int l_luamq_receive(lua_State *L)
+static int l_mq_receive(lua_State *L)
 {
   mqd_t* id;
   unsigned int prio;
@@ -137,7 +136,7 @@ static int l_luamq_receive(lua_State *L)
   return 2;
 }
 
-static int l_luamq_close(lua_State *L)
+static int l_mq_close(lua_State *L)
 {
   mqd_t* id;
   id = luaL_checkudata(L, 1, MQD_TYPENAME);
@@ -151,7 +150,7 @@ static int l_luamq_close(lua_State *L)
   return 1;
 }
 
-static int l_luamq_unlink(lua_State *L)
+static int l_mq_unlink(lua_State *L)
 {
   if(mq_unlink(luaL_checkstring(L, 1))) {
     lua_pushnil(L);
@@ -163,18 +162,18 @@ static int l_luamq_unlink(lua_State *L)
   return 1;
 }
 
-static const struct luaL_reg luamq_funcs [] = {
-  { "create", l_luamq_create },
-  { "open", l_luamq_open },
-  { "send", l_luamq_send },
-  { "receive", l_luamq_receive },
-  { "close", l_luamq_close },
-  { "unlink", l_luamq_unlink },
+static const struct luaL_reg mq_funcs [] = {
+  { "create", l_mq_create },
+  { "open", l_mq_open },
+  { "send", l_mq_send },
+  { "receive", l_mq_receive },
+  { "close", l_mq_close },
+  { "unlink", l_mq_unlink },
   { NULL, NULL }
 };
 
-LUALIB_API int luaopen_luamq(lua_State *L)
+LUALIB_API int luaopen_mq(lua_State *L)
 {
-  luaL_register(L, "luamq", luamq_funcs);
+  luaL_register(L, "mq", mq_funcs);
   return 1;
 }
