@@ -11,10 +11,34 @@
 #define MQD_TYPENAME "mqd_t"
 #include "lua-mq.h"
 
-static mode_t get_mode(const char* modestr)
+static const struct { char c; mode_t b; } M[] =
 {
-/* TODO: implement this!!! */
-  return S_IRWXU | S_IRWXG;
+  {'r', S_IRUSR}, {'w', S_IWUSR}, {'x', S_IXUSR},
+  {'r', S_IRGRP}, {'w', S_IWGRP}, {'x', S_IXGRP},
+  {'r', S_IROTH}, {'w', S_IWOTH}, {'x', S_IXOTH},
+};
+
+static int get_mode(mode_t *mode, const char* modestr)
+{
+  int i;
+
+  *mode = 0;
+  for (i=0; i<9; i++) {
+    if(*modestr == 0) break;
+    if (*modestr == M[i].c)
+      *mode |= M[i].b;
+    else if (*modestr == '-')
+      *mode &= ~M[i].b;
+    else if (*modestr == 's') {
+      switch(i) {
+      case 2: *mode |= S_ISUID | S_IXUSR; break;
+      case 5: *mode |= S_ISGID | S_IXGRP; break;
+      default: return -1; break;
+      }
+    }
+    modestr++;
+  }
+  return 0;
 }
 
 static int get_oflags(const char* flagstr)
