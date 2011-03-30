@@ -21,15 +21,16 @@ static const struct { char c; mode_t b; } M[] =
 static int get_mode(mode_t *mode, const char* modestr)
 {
   int i;
-
-  *mode = 0;
+  
+  *mode = S_IRWXU;
   for (i=0; i<9; i++) {
     if(*modestr == 0) break;
-    if (*modestr == M[i].c)
+
+    if(*modestr == M[i].c)
       *mode |= M[i].b;
-    else if (*modestr == '-')
+    else if(*modestr == '-')
       *mode &= ~M[i].b;
-    else if (*modestr == 's') {
+    else if(*modestr == 's') {
       switch(i) {
       case 2: *mode |= S_ISUID | S_IXUSR; break;
       case 5: *mode |= S_ISGID | S_IXGRP; break;
@@ -67,11 +68,16 @@ static void push_errno(lua_State *L)
 static int l_mq_create(lua_State *L)
 {
   mqd_t id, *ptr;
-  int flags;
+  int flags, ret;
   mode_t mode;
 
   flags = get_oflags(luaL_optstring(L, 2, ""));
-  mode = get_mode(luaL_optstring(L, 3, ""));
+  ret = get_mode(&mode, luaL_optstring(L, 3, ""));
+  if(ret) {
+    lua_pushnil(L);
+    lua_pushstring(L, "invalid mode specifier");
+    return 2;
+  }
   id = mq_open(luaL_checkstring(L, 1), flags | O_CREAT, mode, NULL);
   if(id == (mqd_t)-1) {
     lua_pushnil(L);

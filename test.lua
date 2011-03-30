@@ -2,7 +2,7 @@
 
 mq = require "mq"
 
-q, err = mq.create("/nownext", "wo")
+q, err = mq.create("/nownext", "wo", "rw-rw----")
 if q == nil then
    print(err)
    return 1
