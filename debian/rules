@@ -32,7 +32,7 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_installdirs
-	$(MAKE) clean
+	$(MAKE) DESTDIR=$(CURDIR)/debian/liblua5.1-mq install
 
 # Build architecture-independent files here.
 binary-indep: install
@@ -43,6 +43,7 @@ binary-arch: install
 	dh_testdir
 	dh_testroot
 	dh_installdocs
+	dh_installchangelogs
 	dh_installexamples
 	dh_link
 	dh_strip
