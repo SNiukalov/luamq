@@ -10,7 +10,7 @@ RANLIB= ranlib
 lib: src/$(LIBNAME)
 
 src/$(LIBNAME): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(LIB_OPTION) $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIB_OPTION)
 
 install:
 	mkdir -p $(DESTDIR)$(LUA_LIBDIR)

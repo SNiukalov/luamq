@@ -3,7 +3,7 @@
 
 #include <sys/stat.h>
 #include <mqueue.h>
-#define _XOPEN_SOURCE 600  
+#define _XOPEN_SOURCE 600
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,7 +21,7 @@ static const struct { char c; mode_t b; } M[] =
 static int get_mode(mode_t *mode, const char* modestr)
 {
   int i;
-  
+
   *mode = S_IRWXU;
   for (i=0; i<9; i++) {
     if(*modestr == 0) break;
@@ -192,7 +192,7 @@ static int l_mq_unlink(lua_State *L)
   return 1;
 }
 
-static const struct luaL_reg mq_funcs [] = {
+static const struct luaL_Reg mq_funcs [] = {
   { "create", l_mq_create },
   { "open", l_mq_open },
   { "send", l_mq_send },
@@ -204,6 +204,14 @@ static const struct luaL_reg mq_funcs [] = {
 
 LUALIB_API int luaopen_mq(lua_State *L)
 {
+#if LUA_VERSION_NUM > 501
+  lua_newtable(L);
+  luaL_setfuncs(L, mq_funcs, 0);
+  /* since Lua 5.2 libs shouldn't do that anymore... */
+  /* lua_pushvalue(L, -1); */
+  /* lua_setglobal(L, "mq"); */
+#else
   luaL_register(L, "mq", mq_funcs);
+#endif
   return 1;
 }
